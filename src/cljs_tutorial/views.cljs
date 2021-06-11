@@ -11,7 +11,7 @@
   [:div [:h1 ">>> " @(re-frame/subscribe [:view-key :cnt])]
    [:input {:type "button"
             :value "inc"
-            :on-click #(re-frame/dispatch [:inc-cnt])}]])
+            :on-click #(re-frame/dispatch [:cnt-event inc])}]])
 
 (defn main-panel []
   (let [name (re-frame/subscribe [::subs/name])]

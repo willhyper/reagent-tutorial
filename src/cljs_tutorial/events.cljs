@@ -10,6 +10,6 @@
    db/default-db))
 
 (re-frame/reg-event-db
- :inc-cnt
- (fn [db _]
-   (assoc db :cnt (inc (:cnt db)))))
+ :cnt-event
+ (fn [db [event-id handler]]
+   (assoc db :cnt (handler (:cnt db)))))
