@@ -13,3 +13,8 @@
  :cnt-event
  (fn [db [event-id handler]]
    (assoc db :cnt (handler (:cnt db)))))
+
+(re-frame/reg-event-db
+ :txt-event
+ (fn [db [event-id handler]]
+   (assoc db :txt handler)))

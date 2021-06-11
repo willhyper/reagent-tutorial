@@ -12,13 +12,13 @@
             :value "inc"
             :on-click #(re-frame/dispatch [:cnt-event inc])}]])
 
-(def text-val (atom ""))
 
-(defn mirror-text [txt]
-  [:div @txt
-   [:input {:type "text"
-                 :value @txt
-                 :on-change #(reset! txt (-> % .-target .-value))}]]
+(defn mirror-text []
+  (let [txt (re-frame/subscribe [:view-key :txt])]
+    [:div @txt
+     [:input {:type "text"
+              :value @txt
+              :on-change #(re-frame/dispatch [:txt-event (-> % .-target .-value)])}]])
   )
 
 (defn main-panel []
@@ -27,5 +27,5 @@
      [:h1
       "Hello from " @name]
      [counter]
-     [mirror-text text-val]
+     [mirror-text]
      ]))
