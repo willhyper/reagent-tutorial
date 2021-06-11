@@ -8,7 +8,7 @@
 (def cnt (atom 0))
 
 (defn counter []
-  [:div [:h1 ">>> " @cnt " "]
+  [:div [:h1 ">>> " @(re-frame/subscribe [:count])]
    [:input {:type "button"
             :value "inc"
             :on-click #(swap! cnt inc)}]])
