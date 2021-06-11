@@ -8,6 +8,6 @@
    (:name db)))
 
 (re-frame/reg-sub
- :count
- (fn [db]
-   (:cnt db)))
+ :view-key
+ (fn [db [event-id key]]
+   (key db)))
