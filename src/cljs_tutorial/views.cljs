@@ -5,7 +5,6 @@
    [cljs-tutorial.subs :as subs]
    ))
 
-(def cnt (atom 0))
 
 (defn counter []
   [:div [:h1 ">>> " @(re-frame/subscribe [:view-key :cnt])]
