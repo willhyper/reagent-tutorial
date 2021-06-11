@@ -14,11 +14,11 @@
 
 (def text-val (atom ""))
 
-(defn mirror-text []
-  [:div @text-val
+(defn mirror-text [txt]
+  [:div @txt
    [:input {:type "text"
-                 :value @text-val
-                 :on-change #(reset! text-val (-> % .-target .-value))}]]
+                 :value @txt
+                 :on-change #(reset! txt (-> % .-target .-value))}]]
   )
 
 (defn main-panel []
@@ -27,5 +27,5 @@
      [:h1
       "Hello from " @name]
      [counter]
-     [mirror-text]
+     [mirror-text text-val]
      ]))
