@@ -8,3 +8,8 @@
  ::initialize-db
  (fn [_ _]
    db/default-db))
+
+(re-frame/reg-event-db
+ :inc-cnt
+ (fn [db _]
+   (assoc db :cnt (inc (:cnt db)))))
