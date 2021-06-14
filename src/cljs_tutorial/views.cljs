@@ -28,4 +28,5 @@
       "Hello from " @name]
      [counter]
      [mirror-text]
+     [:div  {:style {:color "red"}} "green!" [:b "red?"]]
      ]))
