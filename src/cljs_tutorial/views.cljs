@@ -22,7 +22,7 @@
   )
 
 (defn main-panel []
-  (let [name (re-frame/subscribe [::subs/name])]
+  (let [name (re-frame/subscribe [:name])]
     [:div
      [:h1
       "Hello from " @name]
