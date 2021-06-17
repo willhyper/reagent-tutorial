@@ -21,6 +21,16 @@
               :on-change #(re-frame/dispatch [:txt-event (-> % .-target .-value)])}]])
   )
 
+(def s (atom 0))
+
+(defn slider [m M]
+  [:div [:input {:type "range" :min m :max M
+                 :value @s
+                 :on-change (fn [e]
+                              (let [sv (.. e -target -value)]
+                                (swap! s (constantly sv))))}]
+   @s])
+
 (defn main-panel []
   (let [name (re-frame/subscribe [:name])]
     [:div
@@ -29,4 +39,5 @@
      [counter]
      [mirror-text]
      [:div  {:style {:color "red"}} "green!" [:b "red?"]]
+     [slider 20 80]
      ]))
