@@ -21,15 +21,23 @@
               :on-change #(re-frame/dispatch [:txt-event (-> % .-target .-value)])}]])
   )
 
-(def s (atom 0))
+(def s (atom {:m 0 :M 100}))
 
 (defn slider [m M]
-  [:div [:input {:type "range" :min m :max M
+  [:div
+   [:input {:type "range" :min m :max M
                  :style {:width "70%"}
-                 :value @s
+            :value (:m @s)
                  :on-change (fn [e]
                               (let [sv (.. e -target -value)]
-                                (swap! s (constantly sv))))}]
+                           (swap! s assoc :m sv)))}]
+   [:br]
+   [:input {:type "range" :min m :max M
+            :style {:width "70%"}
+            :value (:M @s)
+            :on-change (fn [e]
+                         (let [sv (.. e -target -value)]
+                           (swap! s assoc :M sv)))}]
    @s])
 
 (defn main-panel []
