@@ -55,7 +55,7 @@
     [:h1 {:style {:color color}} "color"]
     ))
 
-(def rgb (atom {:r 0 :g 0 :b 0}))
+(def rgb (atom {:r 127 :g 127 :b 127}))
 
 (defn slide-color []
   [:div
@@ -68,8 +68,7 @@
                                    (swap! rgb assoc c vi)))}])
    @rgb
    [:br]
-   (let [r (:r @rgb) g (:g @rgb) b (:b @rgb)
-         [rh gh bh] (map  #(. % toString 16) [r g b])
+   (let [[rh gh bh] (map  #(. (@rgb %) toString 16) [:r :g :b])
          color (str "#" rh gh bh)]
      [:h1 {:style {:color color}} color])
    ]
