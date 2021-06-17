@@ -29,15 +29,17 @@
                  :style {:width "70%"}
             :value (:m @s)
                  :on-change (fn [e]
-                              (let [sv (.. e -target -value)]
-                           (swap! s assoc :m sv)))}]
+                              (let [sv (.. e -target -value)
+                                    _M (:M @s)]
+                           (swap! s assoc :m sv :M (max _M sv))))}]
    [:br]
    [:input {:type "range" :min m :max M
             :style {:width "70%"}
             :value (:M @s)
             :on-change (fn [e]
-                         (let [sv (.. e -target -value)]
-                           (swap! s assoc :M sv)))}]
+                         (let [sv (.. e -target -value)
+                               _m (:m @s)]
+                           (swap! s assoc :M sv :m (min _m sv))))}]
    @s])
 
 (defn main-panel []
