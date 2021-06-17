@@ -46,6 +46,14 @@
   [:ui
    (for [item items] [:li "item " item])
    ])
+
+(defn condition-color []
+  (let [v (:M @s)
+        color (cond (< v 30) ["green"]
+                    (< v 60) ["orange"]
+                    (< v 90) ["red"])]
+    [:h1 {:style {:color color}} "color"]
+    ))
 (defn main-panel []
   (let [name (re-frame/subscribe [:name])]
     [:div
@@ -57,4 +65,5 @@
      [slider 20 80]
      [uili (range 3)]
      [:a {:href "http://google.com"} "google.com"]
+     [condition-color]
      ]))
