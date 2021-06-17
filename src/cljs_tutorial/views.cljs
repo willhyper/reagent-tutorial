@@ -24,23 +24,24 @@
 (def s (atom {:m 0 :M 100}))
 
 (defn slider [m M]
-  [:div
-   [:input {:type "range" :min m :max M
-                 :style {:width "70%"}
-            :value (:m @s)
-                 :on-change (fn [e]
-                              (let [sv (.. e -target -value)
-                                    _M (:M @s)]
-                           (swap! s assoc :m sv :M (max _M sv))))}]
-   [:br]
-   [:input {:type "range" :min m :max M
-            :style {:width "70%"}
-            :value (:M @s)
-            :on-change (fn [e]
-                         (let [sv (.. e -target -value)
-                               _m (:m @s)]
-                           (swap! s assoc :M sv :m (min _m sv))))}]
-   @s])
+  (let [_m (:m @s)
+        _M (:M @s)]
+    [:div
+     [:input {:type "range" :min m :max M
+              :style {:width "70%"}
+              :value _m
+              :on-change (fn [e]
+                           (let [sv (.. e -target -value)]
+                             (swap! s assoc :m sv :M (max _M sv))))}]
+     [:br]
+     [:input {:type "range" :min m :max M
+              :style {:width "70%"}
+              :value _M
+              :on-change (fn [e]
+                           (let [sv (.. e -target -value)]
+                             (swap! s assoc :M sv :m (min _m sv))))}]
+     @s]))
+
 
 (defn main-panel []
   (let [name (re-frame/subscribe [:name])]
@@ -51,4 +52,5 @@
      [mirror-text]
      [:div  {:style {:color "red"}} "green!" [:b "red?"]]
      [slider 20 80]
+  
      ]))
