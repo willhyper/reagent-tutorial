@@ -56,4 +56,5 @@
      [:div  {:style {:color "red"}} "green!" [:b "red?"]]
      [slider 20 80]
      [uili (range 3)]
+     [:a {:href "http://google.com"} "google.com"]
      ]))
