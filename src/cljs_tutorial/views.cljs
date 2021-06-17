@@ -25,6 +25,7 @@
 
 (defn slider [m M]
   [:div [:input {:type "range" :min m :max M
+                 :style {:width "70%"}
                  :value @s
                  :on-change (fn [e]
                               (let [sv (.. e -target -value)]
