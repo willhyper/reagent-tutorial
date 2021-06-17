@@ -69,8 +69,11 @@
    @rgb
    [:br]
    (let [[rh gh bh] (map  #(. (@rgb %) toString 16) [:r :g :b])
+         {rr :r gg :g bb :b} @rgb
          color (str "#" rh gh bh)]
-     [:h1 {:style {:color color}} color])
+     [:div
+      [:h1 {:style {:color color}} color]
+      [:h2 rr " " gg " " bb]])
    ]
   )
 (defn main-panel []
