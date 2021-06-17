@@ -42,11 +42,9 @@
                              (swap! s assoc :M sv :m (min _m sv))))}]
      @s]))
 
-(defn uili []
+(defn uili [items]
   [:ui
-   [:li "item1"]
-   [:li "item2"]
-   [:li "item3"]
+   (for [item items] [:li "item " item])
    ])
 (defn main-panel []
   (let [name (re-frame/subscribe [:name])]
@@ -57,5 +55,5 @@
      [mirror-text]
      [:div  {:style {:color "red"}} "green!" [:b "red?"]]
      [slider 20 80]
-     [uili]
+     [uili (range 3)]
      ]))
