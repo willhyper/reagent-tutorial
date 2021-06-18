@@ -77,26 +77,14 @@
    ]
   )
 
-(def mouse-coordinates (atom {:x 100 :y 100}))
-
-(defn dot []
-  (let [{x :x y :y} @mouse-coordinates]
-    [:div {:style {:left             (- x 5)
-                   :top              (- y 5)
-                   :width            10
-                   :height           10
-                   :background-color "red"
-                   :position         "absolute"}}
-      "(" x "," y ")"]))
-
-(defn mouse-move []
-  [:body
-   {:onMouseMove (fn [event]
-                   (swap! mouse-coordinates assoc :x (. event -clientX) :y (. event -clientY))
-                   )
-    :style {:background-color "yellow"}}
-   [:canvas ]
-   [dot]
+(def coor (atom {}))
+(defn canvaz []
+  [:div
+   {:onMouseMove (fn[e] (swap! coor assoc :x (. e -clientX) :y (. e -clientY)))
+    :style {:background-color "lightblue"}
+    }
+   coor
+   [:canvas {:style {:background-color "yellow" :width "100%"}} ]
    ])
 
 (defn main-panel []
@@ -112,5 +100,5 @@
      [:a {:href "http://google.com"} "google.com"]
      [condition-color]
      [slide-color]
-     [mouse-move]
+     [canvaz]
      ]))
