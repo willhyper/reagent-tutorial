@@ -76,6 +76,29 @@
       [:h2 rr " " gg " " bb]])
    ]
   )
+
+(def mouse-coordinates (atom {:x 100 :y 100}))
+
+(defn dot []
+  (let [{x :x y :y} @mouse-coordinates]
+    [:div {:style {:left             (- x 5)
+                   :top              (- y 5)
+                   :width            10
+                   :height           10
+                   :background-color "red"
+                   :position         "absolute"}}
+      "(" x "," y ")"]))
+
+(defn mouse-move []
+  [:body
+   {:onMouseMove (fn [event]
+                   (reset! mouse-coordinates {:x (.-clientX event) :y (.-clientY event)})
+                   )
+    :style {:background-color "yellow"}}
+   [:canvas ]
+   [dot]
+   ])
+
 (defn main-panel []
   (let [name (re-frame/subscribe [:name])]
     [:div
@@ -89,4 +112,5 @@
      [:a {:href "http://google.com"} "google.com"]
      [condition-color]
      [slide-color]
+     [mouse-move]
      ]))
