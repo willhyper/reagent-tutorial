@@ -78,20 +78,31 @@
   )
 
 (def coor (atom {}))
+(def _canvas (atom {}))
 (defn canvaz []
   [:div
-   {:onMouseMove (fn[e]
+   {:onMouseMove (fn [e]
                    (let [x (. e -clientX) y (. e -clientY)]
-                    (swap! coor assoc :x x :y y)))
-    :style {:background-color "lightblue"}
-    }
+                     (swap! coor assoc :x x :y y)))
+    :onMouseDown (fn [e]
+                   (let [x (. e -clientX) y (. e -clientY)
+                         ctx (.getContext @_canvas "2d")]
+                     (doto ctx
+                       (.beginPath)
+                       (.moveTo 0 0)
+                       (.lineTo x y)
+                       (.stroke))))
+    :style {:background-color "lightblue"}}
+   [:canvas {:ref #(reset! _canvas %)
+             :style {:background-color "yellow"}}]
+   [:br]
    coor
-   [:canvas {:style {:background-color "yellow" :width "100%"}} ]
    ])
 
 (defn main-panel []
   (let [name (re-frame/subscribe [:name])]
     [:div
+     [canvaz]
      [:h1
       "Hello from " @name]
      [counter]
@@ -102,5 +113,4 @@
      [:a {:href "http://google.com"} "google.com"]
      [condition-color]
      [slide-color]
-     [canvaz]
      ]))
