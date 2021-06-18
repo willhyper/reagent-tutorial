@@ -92,7 +92,7 @@
 (defn mouse-move []
   [:body
    {:onMouseMove (fn [event]
-                   (reset! mouse-coordinates {:x (.-clientX event) :y (.-clientY event)})
+                   (swap! mouse-coordinates assoc :x (. event -clientX) :y (. event -clientY))
                    )
     :style {:background-color "yellow"}}
    [:canvas ]
