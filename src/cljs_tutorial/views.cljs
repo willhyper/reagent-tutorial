@@ -80,7 +80,9 @@
 (def coor (atom {}))
 (defn canvaz []
   [:div
-   {:onMouseMove (fn[e] (swap! coor assoc :x (. e -clientX) :y (. e -clientY)))
+   {:onMouseMove (fn[e]
+                   (let [x (. e -clientX) y (. e -clientY)]
+                    (swap! coor assoc :x x :y y)))
     :style {:background-color "lightblue"}
     }
    coor
