@@ -113,4 +113,5 @@
      [:a {:href "http://google.com"} "google.com"]
      [condition-color]
      [slide-color]
+     \u2776
      ]))
