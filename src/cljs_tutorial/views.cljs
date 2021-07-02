@@ -84,6 +84,17 @@
    {:onMouseMove (fn [e]
                    (let [x (. e -clientX) y (. e -clientY)]
                      (swap! coor assoc :x x :y y)))
+    :onMouseUp (fn [e]
+                   (let [x (. e -clientX) y (. e -clientY)
+                         ctx (.getContext @_canvas "2d")
+                         gradient (. ctx createLinearGradient 0 0 x y)]
+
+                     (doto gradient
+                       (.addColorStop 0 "#424242")
+                       (.addColorStop 0.5 "#111111")
+                       (.addColorStop 1 "#e2e2e2"))
+                     (set! (. ctx -fillStyle) gradient)
+                     (. ctx fillRect 10 0 100 300)))
     :onMouseDown (fn [e]
                    (let [x (. e -clientX) y (. e -clientY)
                          ctx (.getContext @_canvas "2d")]
