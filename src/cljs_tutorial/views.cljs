@@ -85,16 +85,16 @@
                    (let [x (. e -clientX) y (. e -clientY)]
                      (swap! coor assoc :x x :y y)))
     :onMouseUp (fn [e]
-                   (let [x (. e -clientX) y (. e -clientY)
-                         ctx (.getContext @_canvas "2d")
-                         gradient (. ctx createLinearGradient 0 0 x y)]
+                 (let [x (. e -clientX) y (. e -clientY)
+                       ctx (.getContext @_canvas "2d")
+                       gradient (. ctx createLinearGradient 0 0 x y)]
 
-                     (doto gradient
-                       (.addColorStop 0 "#424242")
-                       (.addColorStop 0.5 "#111111")
-                       (.addColorStop 1 "#e2e2e2"))
-                     (set! (. ctx -fillStyle) gradient)
-                     (. ctx fillRect 10 0 100 300)))
+                   (doto gradient
+                     (.addColorStop 0 "#424242")
+                     (.addColorStop 0.5 "#111111")
+                     (.addColorStop 1 "#e2e2e2"))
+                   (set! (. ctx -fillStyle) gradient)
+                   (. ctx fillRect 10 0 100 300)))
     :onMouseDown (fn [e]
                    (let [x (. e -clientX) y (. e -clientY)
                          ctx (.getContext @_canvas "2d")]
@@ -103,9 +103,17 @@
                        (.moveTo 0 0)
                        (.lineTo x y)
                        (.stroke))))
+
+    :onKeyDown (fn [e]
+                 (swap! coor assoc :key (.-key e)))
+    :onKeyUp (fn [e]
+                 (swap! coor assoc :key nil))
+
     :style {:background-color "lightblue"}}
    [:canvas {:ref #(reset! _canvas %)
-             :style {:background-color "yellow"}}]
+             :style {:background-color "yellow"}
+             :tabindex 0 ;this is essential to keypress event https://stackoverflow.com/questions/30343362/onkeydown-not-firing-on-component
+             }]
    [:br]
    coor
    ])
@@ -120,7 +128,7 @@
      [mirror-text]
      [:div  {:style {:color "red"}} "green!" [:b "red?"]]
      [slider 20 80]
-     [uili (range 3)]
+     
      [:a {:href "http://google.com"} "google.com"]
      [condition-color]
      [slide-color]
