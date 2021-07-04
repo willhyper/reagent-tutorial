@@ -8,6 +8,7 @@
 
 (def cam (atom {:x 10 :y 10 :angle 0}))
 (def mouse (atom {:x 10 :y 10}))
+(def debug (atom {}))
 
 (defn canvas_track_mouse []
   [:div
@@ -25,8 +26,19 @@
 
                      (.clearRect ctx 0 0 w h)
                      (.fillRect ctx cx cy 10 10)))}
-   [:canvas {:ref #(reset! _canvas %)
-             :style {:background-color "lightblue"}
+   [:canvas {:ref (fn [c]
+                    (reset! _canvas c)
+
+                    ; Caveats with callback refs: you may get nil
+                    ; https://reactjs.org/docs/refs-and-the-dom.html
+                    (if (nil? c)
+                      (); do nothing
+                      (let [rect (.getBoundingClientRect c)
+                            t (.-top rect) r (.-right rect)
+                            b (.-bottom rect) l (.-left rect)]
+                        (swap! debug assoc :top t :left l :right r :bottom b ))))
+             :style {:background-color "lightblue"
+                     :width 800}
              :tabIndex 1}]
 
    [:br]
