@@ -37,8 +37,9 @@
                             t (.-top rect) r (.-right rect)
                             b (.-bottom rect) l (.-left rect)]
                         (swap! debug assoc :top t :left l :right r :bottom b ))))
+             :width 1200 :height 600 ; https://stackoverflow.com/questions/4938346/canvas-width-and-height-in-html5
              :style {:background-color "lightblue"
-                     :width 800}
+                     :width 1200 :height 600}
              :tabIndex 1}]
 
    [:br]
