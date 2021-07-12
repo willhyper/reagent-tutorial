@@ -28,7 +28,18 @@
                      (set! (. ctx -fillStyle) "black")
 
                      (.clearRect ctx 0 0 w h)
-                     (.fillRect ctx cxnew cynew 5 5)
+
+                     (.fillRect ctx 20 50 10 500)
+                     (. ctx fillRect 30 40 10 60)
+                     (js/ctx.fillRect 60 20 10 333)
+
+                     ; https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript
+                     ; https://stackoverflow.com/questions/39053968/use-apply-on-native-javascript-functions
+                    ;;  (apply ctx.fillRect [10 20 30 40]) ; Uncaught TypeError: Illegal invocation
+
+                     (apply (.bind (.-fillRect js/ctx) js/ctx) [100 20 10 400]) ;  working
+                     (apply (.bind (.-fillRect ctx) ctx) [200 20 10 400]) ;  working
+                     
                      
 
                      ))}
