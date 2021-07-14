@@ -15,9 +15,25 @@
 (def fov (atom {}))
 (def maze (atom {}))
 
+(defn drawCam [canvas cam]
+  (let [ctx (.getContext canvas "2d")
+        {x :x y :y cangle :angle} cam
+        R 100
+        rayx (* R (Math/cos (* deg2rad cangle)))
+        rayy (* R (Math/sin (* deg2rad cangle)))]
+
+    (set! (. ctx -fillStyle) "black")
+    (.fillRect ctx (- x 2) (- y 2) 5 5)
+    (doto ctx
+      (.beginPath) (.moveTo x y) (.lineTo (+ x rayx) (+ y rayy)) (.stroke))))
+
+(defn clearCanvas [canvas]
+  (let [ctx (.getContext canvas "2d") w (.-width canvas) h (.-height canvas)]
+    (.clearRect ctx 0 0 w h)))
 (defn canvas_track_mouse []
   [:div
    {:onMouseMove (fn [e]
+                   (clearCanvas @_canvas)
                    (let [ctx (.getContext @_canvas "2d")
                          w (.-width @_canvas) h (.-height @_canvas)
                          wmaze (.-width @_canvas_cam) hmaze (.-height @_canvas_cam)
@@ -37,28 +53,11 @@
                      (swap! cam assoc :x cxnew :y cynew :angle canglenew)
 
                      (set! (. ctx -fillStyle) "black")
-
-                     (.clearRect ctx 0 0 w h)
-
                      (doto ctx
-                       (.beginPath) (.moveTo centerx centery) (.lineTo mox moy) (.stroke))
-                     
-                     
-                     )
-                     (let [ctx (.getContext @_canvas_cam "2d")
-                           w (.-width @_canvas_cam) h (.-height @_canvas_cam)
-                           {x :x y :y cangle :angle} @cam
-                           R 100
-                           rayx (* R (Math/cos (* deg2rad cangle)))
-                           rayy (* R (Math/sin (* deg2rad cangle)))]
+                       (.beginPath) (.moveTo centerx centery) (.lineTo mox moy) (.stroke)))
 
-                       (set! (. ctx -fillStyle) "black")
-
-                       (.clearRect ctx 0 0 w h)
-                       (.fillRect ctx (- x 2) (- y 2) 5 5)
-                       (doto ctx
-                         (.beginPath) (.moveTo x y) (.lineTo (+ x rayx) (+ y rayy)) (.stroke)))
-                     )}
+                   (clearCanvas @_canvas_cam)
+                   (drawCam @_canvas_cam @cam))}
    [:canvas {:ref (fn [c]
                     (reset! _canvas c)
 
