@@ -12,7 +12,6 @@
 (def cam (atom {:x 100 :y 100 :angle 0}))
 (def mouse (atom {:x 10 :y 10}))
 (def fov (atom {}))
-(def maze (atom {}))
 
 (defn drawCam [canvas cam]
   (let [ctx (.getContext canvas "2d")
@@ -77,16 +76,7 @@
                      :width 1200 :height 600}
              :tabIndex 1}]
    [:canvas {:ref (fn [c]
-                    (reset! maze_canvas c)
-
-                    ; Caveats with callback refs: you may get nil
-                    ; https://reactjs.org/docs/refs-and-the-dom.html
-                    (if (nil? c)
-                      (); do nothing
-                      (let [rect (.getBoundingClientRect c)
-                            t (.-top rect) r (.-right rect)
-                            b (.-bottom rect) l (.-left rect)]
-                        (swap! maze assoc :top t :left l :right r :bottom b))))
+                    (reset! maze_canvas c))
              :width 400 :height 200 ; https://stackoverflow.com/questions/4938346/canvas-width-and-height-in-html5
              :style {:background-color "yellow"
                      :width 400 :height 200}
