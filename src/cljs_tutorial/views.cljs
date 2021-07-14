@@ -11,7 +11,7 @@
 
 (def cam (atom {:x 100 :y 100 :angle 0}))
 (def mouse (atom {:x 10 :y 10}))
-(def fov (atom {}))
+
 
 (defn drawCam [canvas cam]
   (let [ctx (.getContext canvas "2d")
@@ -42,9 +42,11 @@
    {:onMouseMove (fn [e]
                    (clearCanvas @fov_canvas)
                    (let [ctx (.getContext @fov_canvas "2d")
-                         w (.-width @fov_canvas) h (.-height @fov_canvas)
-                         
-                         {top :top left :left right :right bottom :bottom centerx :centerx centery :centery} @fov ; absolute fov coordinate 
+                         rect (.getBoundingClientRect @fov_canvas)
+                         top (.-top rect) left (.-left rect)
+                         w (.-width rect) h (.-height rect)
+                         centerx (/ w 2) centery (/ h 2)
+
                          mx (.-clientX e) my (.-clientY e) ; absolute mouse x y coordinate
                          mox (- mx left) moy (- my top) ; mouse x y relative to fov origin
                          mcx (- mox centerx) mcy (- moy centery) ; mouse x y relative to fov center in pixel
@@ -65,12 +67,7 @@
 
                     ; Caveats with callback refs: you may get nil
                     ; https://reactjs.org/docs/refs-and-the-dom.html
-                    (if (nil? c)
-                      (); do nothing
-                      (let [rect (.getBoundingClientRect c)
-                            t (.-top rect) r (.-right rect)
-                            b (.-bottom rect) l (.-left rect)]
-                        (swap! fov assoc :top t :left l :right r :bottom b :centerx (/ (- r l) 2) :centery (/ (- b t) 2)))))
+                    )
              :width 1200 :height 600 ; https://stackoverflow.com/questions/4938346/canvas-width-and-height-in-html5
              :style {:background-color "lightblue"
                      :width 1200 :height 600}
@@ -85,8 +82,8 @@
    "mouse " mouse
    [:br]
    "camera " cam
-   [:br]
-   "fov " fov]
+   
+   ]
   )
 
 (defn main-panel []
