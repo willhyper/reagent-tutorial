@@ -11,6 +11,16 @@
 (def fov (atom {}))
 (def debug (atom {}))
 
+(defn wall-height [H angle]
+  (->> angle (* (/ Math/PI 180)) Math/atan (* (/ 2 Math/PI))  (- 1) (* (/ H 2))))
+
+(defn wall-coordinate [H W angle]
+  (let [wh (wall-height H angle)]
+    [(+ (/ W 2) (* angle (/ W 120))) 
+     (- (/ H 2) (/ wh 2)) 
+     15
+     wh]))
+
 (defn canvas_track_mouse []
   [:div
    {:onMouseMove (fn [e]
@@ -19,6 +29,7 @@
                          {top :top left :left right :right bottom :bottom} @fov ; absolute fov coordinate 
                          mx (.-clientX e) my (.-clientY e) ; absolute mouse x y coordinate
                          mox (- mx top) moy (- my left) ; mouse x y relative to fov origin
+                         ax (* (/ 60 w) (- mox (/ w 2)))
                          cx (:x @cam) cy (:y @cam) ; camera x y relative to fov origin
                          dx (- mox cx) dy (- moy cy) ang (mod (* 180 (/ (Math/atan (/ dy dx) Math/PI))) 360) ; mouse camera x y difference
                          cxnew (int (+ cx (/ dx 5)))  cynew (int (+ cy (/ dy 5)))] ; rule of assigning new camera x y 
@@ -29,19 +40,9 @@
 
                      (.clearRect ctx 0 0 w h)
 
-                     (.fillRect ctx 20 50 10 500)
-                     (. ctx fillRect 30 40 10 60)
-                     (js/ctx.fillRect 60 20 10 333)
-
-                     ; https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript
-                     ; https://stackoverflow.com/questions/39053968/use-apply-on-native-javascript-functions
-                    ;;  (apply ctx.fillRect [10 20 30 40]) ; Uncaught TypeError: Illegal invocation
-
-                     (apply (.bind (.-fillRect js/ctx) js/ctx) [100 20 10 400]) ;  working
-                     (apply (.bind (.-fillRect ctx) ctx) [200 20 10 400]) ;  working
+                     (doseq [wall (map #(wall-coordinate h w %) (range (- ax 60) (+ ax 60) 1.5))]
+                       (apply (.bind (.-fillRect ctx) ctx) wall))
                      
-                     
-
                      ))}
    [:canvas {:ref (fn [c]
                     (reset! _canvas c)
