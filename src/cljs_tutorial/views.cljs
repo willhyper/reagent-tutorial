@@ -6,7 +6,7 @@
 
 (def _canvas (atom {}))
 
-(def cam (atom {:x 10 :y 10 :angle 0}))
+(def cam (atom {:angle 0}))
 (def mouse (atom {:x 10 :y 10}))
 (def fov (atom {}))
 (def debug (atom {}))
@@ -26,22 +26,30 @@
    {:onMouseMove (fn [e]
                    (let [ctx (.getContext @_canvas "2d")
                          w (.-width @_canvas) h (.-height @_canvas)
-                         {top :top left :left right :right bottom :bottom} @fov ; absolute fov coordinate 
+                         {top :top left :left right :right bottom :bottom centerx :centerx centery :centery} @fov ; absolute fov coordinate 
                          mx (.-clientX e) my (.-clientY e) ; absolute mouse x y coordinate
                          mox (- mx top) moy (- my left) ; mouse x y relative to fov origin
-                         ax (* (/ 60 w) (- mox (/ w 2)))
-                         cx (:x @cam) cy (:y @cam) ; camera x y relative to fov origin
-                         dx (- mox cx) dy (- moy cy) ang (mod (* 180 (/ (Math/atan (/ dy dx) Math/PI))) 360) ; mouse camera x y difference
-                         cxnew (int (+ cx (/ dx 5)))  cynew (int (+ cy (/ dy 5)))] ; rule of assigning new camera x y 
-                     (swap! mouse assoc :x mox :y moy)
-                     (swap! cam assoc :angle ang :x cxnew :y cynew)
+                         mcx (- mox centerx) mcy (- moy centery) ; mouse x y relative to fov center in pixel
+
+                         ; rule of assigning new camera x y
+                        ;;  cx (:x @cam) cy (:y @cam) ; camera x y relative to fov origin
+                        ;;  dcx (- mox cx) dcy (- moy cy) ; mouse camera x y difference
+                        ;;  cxnew (int (+ cx (/ dcx 5)))  cynew (int (+ cy (/ dcy 5))) 
+
+                         cangle (:angle @cam) ; in degree
+                         angle (* 60 (/ mcx w)) ; range of (/mcx w) is (-0.5 0.5). *60 gives (-30 30) as viewing angle range in degree
+                         canglenew  (+ cangle (/ (- angle cangle) 10)) ; rule of assigning new camera angle: in 10 steps cangle to reach angle
+                         ] 
+                     (swap! mouse assoc :x mcx :y mcy)
+                     (swap! cam assoc :angle canglenew)
 
                      (set! (. ctx -fillStyle) "black")
 
                      (.clearRect ctx 0 0 w h)
 
-                     (doseq [wall (map #(wall-coordinate h w %) (range (- ax 60) (+ ax 60) 1.5))]
-                       (apply (.bind (.-fillRect ctx) ctx) wall))
+                     (doto ctx
+                       (.beginPath) (.moveTo centerx centery) (.lineTo mox moy) (.stroke))
+                     
                      
                      ))}
    [:canvas {:ref (fn [c]
@@ -54,7 +62,7 @@
                       (let [rect (.getBoundingClientRect c)
                             t (.-top rect) r (.-right rect)
                             b (.-bottom rect) l (.-left rect)]
-                        (swap! fov assoc :top t :left l :right r :bottom b))))
+                        (swap! fov assoc :top t :left l :right r :bottom b :centerx (/ (- r l) 2) :centery (/ (- b t) 2)))))
              :width 1200 :height 600 ; https://stackoverflow.com/questions/4938346/canvas-width-and-height-in-html5
              :style {:background-color "lightblue"
                      :width 1200 :height 600}
