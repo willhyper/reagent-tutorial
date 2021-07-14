@@ -6,9 +6,8 @@
 
 
 (def deg2rad (/ Math/PI 180))
-(def _canvas (atom {}))
+(def fov_canvas (atom {}))
 (def maze_canvas (atom {}))
-
 
 (def cam (atom {:x 100 :y 100 :angle 0}))
 (def mouse (atom {:x 10 :y 10}))
@@ -42,9 +41,9 @@
 (defn canvas_track_mouse []
   [:div
    {:onMouseMove (fn [e]
-                   (clearCanvas @_canvas)
-                   (let [ctx (.getContext @_canvas "2d")
-                         w (.-width @_canvas) h (.-height @_canvas)
+                   (clearCanvas @fov_canvas)
+                   (let [ctx (.getContext @fov_canvas "2d")
+                         w (.-width @fov_canvas) h (.-height @fov_canvas)
                          
                          {top :top left :left right :right bottom :bottom centerx :centerx centery :centery} @fov ; absolute fov coordinate 
                          mx (.-clientX e) my (.-clientY e) ; absolute mouse x y coordinate
@@ -63,7 +62,7 @@
                    (clearCanvas @maze_canvas)
                    (drawCam @maze_canvas @cam))}
    [:canvas {:ref (fn [c]
-                    (reset! _canvas c)
+                    (reset! fov_canvas c)
 
                     ; Caveats with callback refs: you may get nil
                     ; https://reactjs.org/docs/refs-and-the-dom.html
