@@ -6,6 +6,7 @@
 
 
 (def deg2rad (/ Math/PI 180))
+(defonce fovDim {:width 1200 :height 600})
 (def fov_canvas (atom {}))
 (defonce mazeDim {:width 400 :height 200})
 (def maze_canvas (atom {}))
@@ -77,16 +78,17 @@
                    (clearCanvas @maze_canvas)
                    (drawWalls maze_canvas walls)
                    (drawCam @maze_canvas @cam))}
-   [:canvas {:ref (fn [c]
-                    (reset! fov_canvas c)
+   (let [{w :width h :height} fovDim]
+     [:canvas {:ref (fn [c]
+                      (reset! fov_canvas c)
 
                     ; Caveats with callback refs: you may get nil
                     ; https://reactjs.org/docs/refs-and-the-dom.html
-                    )
-             :width 1200 :height 600 ; https://stackoverflow.com/questions/4938346/canvas-width-and-height-in-html5
-             :style {:background-color "lightblue"
-                     :width 1200 :height 600}
-             :tabIndex 1}]
+                      )
+               :width w :height h ; https://stackoverflow.com/questions/4938346/canvas-width-and-height-in-html5
+               :style {:background-color "lightblue"
+                       :width w :height h}
+               :tabIndex 1}])
    (let [{w :width h :height} mazeDim]
      [:canvas {:ref (fn [c]
                       (reset! maze_canvas c))
