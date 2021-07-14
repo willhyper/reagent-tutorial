@@ -28,7 +28,7 @@
                          w (.-width @_canvas) h (.-height @_canvas)
                          {top :top left :left right :right bottom :bottom centerx :centerx centery :centery} @fov ; absolute fov coordinate 
                          mx (.-clientX e) my (.-clientY e) ; absolute mouse x y coordinate
-                         mox (- mx top) moy (- my left) ; mouse x y relative to fov origin
+                         mox (- mx left) moy (- my top) ; mouse x y relative to fov origin
                          mcx (- mox centerx) mcy (- moy centery) ; mouse x y relative to fov center in pixel
 
                          ; rule of assigning new camera x y
