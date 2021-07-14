@@ -7,6 +7,7 @@
 
 (def deg2rad (/ Math/PI 180))
 (def fov_canvas (atom {}))
+(defonce mazeDim {:width 400 :height 200})
 (def maze_canvas (atom {}))
 
 (def cam (atom {:x 100 :y 100 :angle 0}))
@@ -39,6 +40,17 @@
         cynew (min hmaze (max 0 (+ (:y @cam) (Math/sin (* canglenew deg2rad)))))]
     (swap! cam assoc :x cxnew :y cynew :angle canglenew))
   )
+(defonce walls 
+  (let [{w :width h :height} mazeDim]
+    (repeatedly 10 (fn [] [(rand-int w) (rand-int h) (rand-int w) (rand-int h)]))))
+
+(defn drawWalls [canvas walls]
+  (let [ctx (.getContext @canvas "2d")]
+    (doseq [[xs ys xe ye] walls]
+      (doto ctx
+        (.beginPath) (.moveTo xs ys) (.lineTo xe ye) (.stroke))))
+    )
+  
 (defn canvas_track_mouse []
   [:div
    {:onMouseMove (fn [e]
@@ -63,6 +75,7 @@
                        (.beginPath) (.moveTo centerx centery) (.lineTo mox moy) (.stroke)))
 
                    (clearCanvas @maze_canvas)
+                   (drawWalls maze_canvas walls)
                    (drawCam @maze_canvas @cam))}
    [:canvas {:ref (fn [c]
                     (reset! fov_canvas c)
@@ -74,12 +87,13 @@
              :style {:background-color "lightblue"
                      :width 1200 :height 600}
              :tabIndex 1}]
-   [:canvas {:ref (fn [c]
-                    (reset! maze_canvas c))
-             :width 400 :height 200 ; https://stackoverflow.com/questions/4938346/canvas-width-and-height-in-html5
-             :style {:background-color "yellow"
-                     :width 400 :height 200}
-             :tabIndex 2}]
+   (let [{w :width h :height} mazeDim]
+     [:canvas {:ref (fn [c]
+                      (reset! maze_canvas c))
+               :width w :height h ; https://stackoverflow.com/questions/4938346/canvas-width-and-height-in-html5
+               :style {:background-color "yellow"
+                       :width w :height h}
+               :tabIndex 2}])
    [:br]
    "mouse " mouse
    [:br]
