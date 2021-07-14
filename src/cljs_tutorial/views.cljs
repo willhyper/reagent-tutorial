@@ -17,13 +17,15 @@
   (let [ctx (.getContext canvas "2d")
         {x :x y :y cangle :angle} cam
         R 100
-        rayx (* R (Math/cos (* deg2rad cangle)))
-        rayy (* R (Math/sin (* deg2rad cangle)))]
+        rays (for [ang (range (- cangle 30) (+ cangle 30) 5)]
+               [(* R (Math/cos (* deg2rad ang)))
+                (* R (Math/sin (* deg2rad ang)))])]
 
     (set! (. ctx -fillStyle) "black")
     (.fillRect ctx (- x 2) (- y 2) 5 5)
-    (doto ctx
-      (.beginPath) (.moveTo x y) (.lineTo (+ x rayx) (+ y rayy)) (.stroke))))
+    (doseq [[rayx rayy] rays]
+      (doto ctx
+        (.beginPath) (.moveTo x y) (.lineTo (+ x rayx) (+ y rayy)) (.stroke)))))
 
 (defn clearCanvas [canvas]
   (let [ctx (.getContext canvas "2d") w (.-width canvas) h (.-height canvas)]
