@@ -7,7 +7,7 @@
 
 (def deg2rad (/ Math/PI 180))
 (def _canvas (atom {}))
-(def _canvas_cam (atom {}))
+(def maze_canvas (atom {}))
 
 
 (def cam (atom {:x 100 :y 100 :angle 0}))
@@ -30,34 +30,38 @@
 (defn clearCanvas [canvas]
   (let [ctx (.getContext canvas "2d") w (.-width canvas) h (.-height canvas)]
     (.clearRect ctx 0 0 w h)))
+
+(defn moveCam [canvas cam angle]
+  (let [wmaze (.-width @canvas) hmaze (.-height @canvas)
+        cangle (:angle @cam) ; in degree    
+        canglenew  (+ cangle (/ angle 10)) ; rule of assigning new camera angle: in 10 steps cangle to reach angle
+        cxnew (min wmaze (max 0 (+ (:x @cam) (Math/cos (* canglenew deg2rad)))))
+        cynew (min hmaze (max 0 (+ (:y @cam) (Math/sin (* canglenew deg2rad)))))]
+    (swap! cam assoc :x cxnew :y cynew :angle canglenew))
+  )
 (defn canvas_track_mouse []
   [:div
    {:onMouseMove (fn [e]
                    (clearCanvas @_canvas)
                    (let [ctx (.getContext @_canvas "2d")
                          w (.-width @_canvas) h (.-height @_canvas)
-                         wmaze (.-width @_canvas_cam) hmaze (.-height @_canvas_cam)
+                         
                          {top :top left :left right :right bottom :bottom centerx :centerx centery :centery} @fov ; absolute fov coordinate 
                          mx (.-clientX e) my (.-clientY e) ; absolute mouse x y coordinate
                          mox (- mx left) moy (- my top) ; mouse x y relative to fov origin
                          mcx (- mox centerx) mcy (- moy centery) ; mouse x y relative to fov center in pixel
-
-                         cangle (:angle @cam) ; in degree
                          angle (* 60 (/ mcx w)) ; range of (/mcx w) is (-0.5 0.5). *60 gives (-30 30) as viewing angle range in degree
-
-                         canglenew  (+ cangle (/ angle 10)) ; rule of assigning new camera angle: in 10 steps cangle to reach angle
-                         cxnew (min wmaze (max 0 (+ (:x @cam) (Math/cos (* canglenew deg2rad)))))
-                         cynew (min hmaze (max 0 (+ (:y @cam) (Math/sin (* canglenew deg2rad)))))
                          ] 
                      (swap! mouse assoc :x mcx :y mcy)
-                     (swap! cam assoc :x cxnew :y cynew :angle canglenew)
+                     
+                     (moveCam maze_canvas cam angle)
 
                      (set! (. ctx -fillStyle) "black")
                      (doto ctx
                        (.beginPath) (.moveTo centerx centery) (.lineTo mox moy) (.stroke)))
 
-                   (clearCanvas @_canvas_cam)
-                   (drawCam @_canvas_cam @cam))}
+                   (clearCanvas @maze_canvas)
+                   (drawCam @maze_canvas @cam))}
    [:canvas {:ref (fn [c]
                     (reset! _canvas c)
 
@@ -74,7 +78,7 @@
                      :width 1200 :height 600}
              :tabIndex 1}]
    [:canvas {:ref (fn [c]
-                    (reset! _canvas_cam c)
+                    (reset! maze_canvas c)
 
                     ; Caveats with callback refs: you may get nil
                     ; https://reactjs.org/docs/refs-and-the-dom.html
