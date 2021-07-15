@@ -19,28 +19,35 @@
 
 (defonce walls
   (let [{w :width h :height} mazeDim]
-    (repeatedly 10 (fn [] [[(rand-int w) (rand-int h)] [(rand-int w) (rand-int h)]]))))
+    (repeatedly 10 (fn [] {:coordinate [(rand-int w) (rand-int h) (rand-int w) (rand-int h)]
+                           :color (rand-color)}))))
 
 (defn drawLines [canvas lines]
   (let [ctx (.getContext canvas "2d")]
-    (set! (. ctx -fillStyle) "black")
-    (doseq [[[xs ys] [xe ye]] lines]
+    (doseq [ {[xs ys xe ye] :coordinate color :color} lines]
+      (set! (. ctx -strokeStyle) color)
       (doto ctx
         (.beginPath) (.moveTo xs ys) (.lineTo xe ye) (.stroke)))))
 
-(defn drawRects [canvas rects]
+(defn drawRects
+  [canvas rects]
   (let [ctx (.getContext canvas "2d")]
-    (set! (. ctx -fillStyle) "black")
-    (doseq [[[xs ys] [w h]] rects]
+    (doseq [{[xs ys w h] :coordinate color :color} rects]
+      (set! (. ctx -fillStyle) color)
       (.fillRect ctx xs ys w h))))
 
 (defn cameraRays [cam]
   (let [{x :x y :y cangle :angle} cam
-        rays (for [ang (range (- cangle 30) (+ cangle 30) 0.5)]
+        rays (for [ang (range (- cangle 30) (+ cangle 30) 1)]
                [(* R (Math/cos (* deg2rad ang)))
                 (* R (Math/sin (* deg2rad ang)))])
-        raysAbs (map (fn [[rx ry]] [[x y] [(+ x rx) (+ y ry)]]) rays)]
-    (map (fn [ray] (utils/intersects ray walls)) raysAbs)))
+        raysAbs (map (fn [[rx ry]] [[x y] [(+ x rx) (+ y ry)]]) rays)
+        wallCoordinates (map (fn [[xs ys xe ye]] [[xs ys] [xe ye]]) (map #(:coordinate %) walls))
+        ]
+    (map (fn [ray]
+           (let [[[xs ys] [xe ye]] (utils/intersects ray wallCoordinates)]
+             {:coordinate [xs ys xe ye] :color "black"}
+             )) raysAbs)))
 
 (defn drawCam [canvas cam]
   (let [ctx (.getContext canvas "2d")
@@ -78,14 +85,16 @@
                          mcx (- mox centerx) mcy (- moy centery) ; mouse x y relative to fov center in pixel
                          angle (* 60 (/ mcx w)) ; range of (/mcx w) is (-0.5 0.5). *60 gives (-30 30) as viewing angle range in degree
 
-                         camRays (cameraRays @cam)
-                         raysDistance (map (fn [[P Q]] (utils/distance P Q)) camRays)
+                         camRays (map #(:coordinate %) (cameraRays @cam))
+                         raysDistance (map (fn [[xs ys xe ye]] 
+                                             (utils/distance [xs ys] [xe ye])) camRays)
                          wallHeights (map (fn [dist] (* h (- 1 (/ dist R)))) raysDistance)
                          wallWidth (/ w (count wallHeights))
                          wallWidthStarts (range 0 w wallWidth)
-                         wallRects (map (fn[wallWStart wallH]                            
-                                          [[wallWStart (- (/ h 2) (/ wallH 2))]
-                                           [wallWidth wallH]]) wallWidthStarts wallHeights)
+                         wallRects (map (fn [wallWStart wallH]
+                                          {:coordinate [wallWStart (- (/ h 2) (/ wallH 2)) wallWidth wallH]
+                                           :color "grey"}
+                                          ) wallWidthStarts wallHeights)
                          ]
                      (swap! mouse assoc :x mcx :y mcy)
                      
