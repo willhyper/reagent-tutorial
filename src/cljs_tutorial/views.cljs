@@ -1,7 +1,6 @@
 (ns cljs-tutorial.views
   (:require
-   [re-frame.core :as re-frame]
-   [cljs-tutorial.subs :as subs]
+   [cljs-tutorial.utils :as utils]
    ))
 
 
@@ -14,6 +13,16 @@
 (def cam (atom {:x 100 :y 100 :angle 0}))
 (def mouse (atom {:x 10 :y 10}))
 
+(defonce walls
+  (let [{w :width h :height} mazeDim]
+    (repeatedly 10 (fn [] [[(rand-int w) (rand-int h)] [(rand-int w) (rand-int h)]]))))
+
+(defn intersect [[start end :as ray] wall]
+  (if (utils/intersect? ray wall) [start (utils/intersection ray wall)] ray))
+
+(defn intersects [ray walls]
+  (->> walls (map #(intersect ray %)) (apply min-key #(apply utils/distance %))))
+
 
 (defn drawCam [canvas cam]
   (let [ctx (.getContext canvas "2d")
@@ -21,13 +30,14 @@
         R 100
         rays (for [ang (range (- cangle 30) (+ cangle 30) 5)]
                [(* R (Math/cos (* deg2rad ang)))
-                (* R (Math/sin (* deg2rad ang)))])]
-
+                (* R (Math/sin (* deg2rad ang)))])
+        raysAbs (map (fn [[rx ry]] [[x y] [(+ x rx) (+ y ry)]]) rays)
+        raysIntersected (map (fn [ray] (intersects ray walls)) raysAbs)]
     (set! (. ctx -fillStyle) "black")
     (.fillRect ctx (- x 2) (- y 2) 5 5)
-    (doseq [[rayx rayy] rays]
+    (doseq [[[xs ys] [xe ye]] raysIntersected]
       (doto ctx
-        (.beginPath) (.moveTo x y) (.lineTo (+ x rayx) (+ y rayy)) (.stroke)))))
+        (.beginPath) (.moveTo xs ys) (.lineTo xe ye) (.stroke)))))
 
 (defn clearCanvas [canvas]
   (let [ctx (.getContext canvas "2d") w (.-width canvas) h (.-height canvas)]
@@ -41,13 +51,10 @@
         cynew (min hmaze (max 0 (+ (:y @cam) (Math/sin (* canglenew deg2rad)))))]
     (swap! cam assoc :x cxnew :y cynew :angle canglenew))
   )
-(defonce walls 
-  (let [{w :width h :height} mazeDim]
-    (repeatedly 10 (fn [] [(rand-int w) (rand-int h) (rand-int w) (rand-int h)]))))
 
 (defn drawWalls [canvas walls]
   (let [ctx (.getContext @canvas "2d")]
-    (doseq [[xs ys xe ye] walls]
+    (doseq [[[xs ys] [xe ye]] walls]
       (doto ctx
         (.beginPath) (.moveTo xs ys) (.lineTo xe ye) (.stroke))))
     )
