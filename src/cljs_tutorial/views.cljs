@@ -87,7 +87,6 @@
                      
                      (moveCam maze_canvas cam angle)
 
-                     (drawLines @fov_canvas [[[centerx centery] [mox moy]]])
                      (drawRects @fov_canvas wallRects)
                      )
 
