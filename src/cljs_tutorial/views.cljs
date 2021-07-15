@@ -42,7 +42,7 @@
   (let [ctx (.getContext canvas "2d")
         {x :x y :y } cam
         raysIntersected (cameraRays cam)]
-    (set! (. ctx -fillStyle) "black")
+    (set! (. ctx -fillStyle) "red")
     (.fillRect ctx (- x 2) (- y 2) 5 5)
     (drawLines canvas raysIntersected)))
 
