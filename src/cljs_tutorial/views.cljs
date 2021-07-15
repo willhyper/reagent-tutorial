@@ -24,15 +24,19 @@
       (doto ctx
         (.beginPath) (.moveTo xs ys) (.lineTo xe ye) (.stroke)))))
 
-(defn drawCam [canvas cam]
-  (let [ctx (.getContext canvas "2d")
-        {x :x y :y cangle :angle} cam
+(defn cameraRays [cam]
+  (let [{x :x y :y cangle :angle} cam
         R 100
         rays (for [ang (range (- cangle 30) (+ cangle 30) 5)]
                [(* R (Math/cos (* deg2rad ang)))
                 (* R (Math/sin (* deg2rad ang)))])
-        raysAbs (map (fn [[rx ry]] [[x y] [(+ x rx) (+ y ry)]]) rays)
-        raysIntersected (map (fn [ray] (utils/intersects ray walls)) raysAbs)]
+        raysAbs (map (fn [[rx ry]] [[x y] [(+ x rx) (+ y ry)]]) rays)]
+    (map (fn [ray] (utils/intersects ray walls)) raysAbs)))
+
+(defn drawCam [canvas cam]
+  (let [ctx (.getContext canvas "2d")
+        {x :x y :y } cam
+        raysIntersected (cameraRays cam)]
     (set! (. ctx -fillStyle) "black")
     (.fillRect ctx (- x 2) (- y 2) 5 5)
     (drawLines canvas raysIntersected)))
@@ -55,8 +59,7 @@
   [:div
    {:onMouseMove (fn [e]
                    (clearCanvas @fov_canvas)
-                   (let [ctx (.getContext @fov_canvas "2d")
-                         rect (.getBoundingClientRect @fov_canvas)
+                   (let [rect (.getBoundingClientRect @fov_canvas)
                          top (.-top rect) left (.-left rect)
                          w (.-width rect) h (.-height rect)
                          centerx (/ w 2) centery (/ h 2)
