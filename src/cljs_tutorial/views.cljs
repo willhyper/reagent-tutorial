@@ -70,9 +70,8 @@
                      
                      (moveCam maze_canvas cam angle)
 
-                     (set! (. ctx -fillStyle) "black")
-                     (doto ctx
-                       (.beginPath) (.moveTo centerx centery) (.lineTo mox moy) (.stroke)))
+                     (drawLines @fov_canvas [[[centerx centery] [mox moy]]])
+                     )
 
                    (clearCanvas @maze_canvas)
                    (drawLines @maze_canvas walls)
