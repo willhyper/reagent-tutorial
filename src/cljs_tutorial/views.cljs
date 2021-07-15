@@ -3,7 +3,7 @@
    [cljs-tutorial.utils :as utils]
    ))
 
-
+(def R 100) ; Ray distance
 (def deg2rad (/ Math/PI 180))
 (defonce fovDim {:width 1200 :height 600})
 (def fov_canvas (atom {}))
@@ -24,10 +24,15 @@
       (doto ctx
         (.beginPath) (.moveTo xs ys) (.lineTo xe ye) (.stroke)))))
 
+(defn drawRects [canvas rects]
+  (let [ctx (.getContext canvas "2d")]
+    (set! (. ctx -fillStyle) "black")
+    (doseq [[[xs ys] [w h]] rects]
+      (.fillRect ctx xs ys w h))))
+
 (defn cameraRays [cam]
   (let [{x :x y :y cangle :angle} cam
-        R 100
-        rays (for [ang (range (- cangle 30) (+ cangle 30) 5)]
+        rays (for [ang (range (- cangle 30) (+ cangle 30) 0.5)]
                [(* R (Math/cos (* deg2rad ang)))
                 (* R (Math/sin (* deg2rad ang)))])
         raysAbs (map (fn [[rx ry]] [[x y] [(+ x rx) (+ y ry)]]) rays)]
@@ -68,12 +73,22 @@
                          mox (- mx left) moy (- my top) ; mouse x y relative to fov origin
                          mcx (- mox centerx) mcy (- moy centery) ; mouse x y relative to fov center in pixel
                          angle (* 60 (/ mcx w)) ; range of (/mcx w) is (-0.5 0.5). *60 gives (-30 30) as viewing angle range in degree
-                         ] 
+
+                         camRays (cameraRays @cam)
+                         raysDistance (map (fn [[P Q]] (utils/distance P Q)) camRays)
+                         wallHeights (map (fn [dist] (* h (- 1 (/ dist R)))) raysDistance)
+                         wallWidth (/ w (count wallHeights))
+                         wallWidthStarts (range 0 w wallWidth)
+                         wallRects (map (fn[wallWStart wallH]                            
+                                          [[wallWStart (- (/ h 2) (/ wallH 2))]
+                                           [wallWidth wallH]]) wallWidthStarts wallHeights)
+                         ]
                      (swap! mouse assoc :x mcx :y mcy)
                      
                      (moveCam maze_canvas cam angle)
 
                      (drawLines @fov_canvas [[[centerx centery] [mox moy]]])
+                     (drawRects @fov_canvas wallRects)
                      )
 
                    (clearCanvas @maze_canvas)
