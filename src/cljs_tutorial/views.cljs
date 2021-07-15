@@ -17,12 +17,6 @@
   (let [{w :width h :height} mazeDim]
     (repeatedly 10 (fn [] [[(rand-int w) (rand-int h)] [(rand-int w) (rand-int h)]]))))
 
-(defn intersect [[start end :as ray] wall]
-  (if (utils/intersect? ray wall) [start (utils/intersection ray wall)] ray))
-
-(defn intersects [ray walls]
-  (->> walls (map #(intersect ray %)) (apply min-key #(apply utils/distance %))))
-
 (defn drawLines [canvas lines]
   (let [ctx (.getContext canvas "2d")]
     (set! (. ctx -fillStyle) "black")
@@ -38,7 +32,7 @@
                [(* R (Math/cos (* deg2rad ang)))
                 (* R (Math/sin (* deg2rad ang)))])
         raysAbs (map (fn [[rx ry]] [[x y] [(+ x rx) (+ y ry)]]) rays)
-        raysIntersected (map (fn [ray] (intersects ray walls)) raysAbs)]
+        raysIntersected (map (fn [ray] (utils/intersects ray walls)) raysAbs)]
     (set! (. ctx -fillStyle) "black")
     (.fillRect ctx (- x 2) (- y 2) 5 5)
     (drawLines canvas raysIntersected)))

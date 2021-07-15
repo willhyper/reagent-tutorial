@@ -46,3 +46,12 @@
         t (/ n d)]
     (v+ (v* B t) (v* A (- 1 t)))))
 
+(defn intersect [[start end :as lineSegment] intersectingLine]
+  (if (intersect? lineSegment intersectingLine) 
+    [start (intersection lineSegment intersectingLine)] 
+    lineSegment))
+
+(defn intersects [lineSegment intersectingLines]
+  (->> intersectingLines 
+       (map #(intersect lineSegment %)) 
+       (apply min-key #(apply distance %))))
