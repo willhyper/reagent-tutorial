@@ -23,6 +23,12 @@
 (defn intersects [ray walls]
   (->> walls (map #(intersect ray %)) (apply min-key #(apply utils/distance %))))
 
+(defn drawLines [canvas lines]
+  (let [ctx (.getContext canvas "2d")]
+    (set! (. ctx -fillStyle) "black")
+    (doseq [[[xs ys] [xe ye]] lines]
+      (doto ctx
+        (.beginPath) (.moveTo xs ys) (.lineTo xe ye) (.stroke)))))
 
 (defn drawCam [canvas cam]
   (let [ctx (.getContext canvas "2d")
@@ -35,9 +41,7 @@
         raysIntersected (map (fn [ray] (intersects ray walls)) raysAbs)]
     (set! (. ctx -fillStyle) "black")
     (.fillRect ctx (- x 2) (- y 2) 5 5)
-    (doseq [[[xs ys] [xe ye]] raysIntersected]
-      (doto ctx
-        (.beginPath) (.moveTo xs ys) (.lineTo xe ye) (.stroke)))))
+    (drawLines canvas raysIntersected)))
 
 (defn clearCanvas [canvas]
   (let [ctx (.getContext canvas "2d") w (.-width canvas) h (.-height canvas)]
@@ -52,12 +56,6 @@
     (swap! cam assoc :x cxnew :y cynew :angle canglenew))
   )
 
-(defn drawWalls [canvas walls]
-  (let [ctx (.getContext @canvas "2d")]
-    (doseq [[[xs ys] [xe ye]] walls]
-      (doto ctx
-        (.beginPath) (.moveTo xs ys) (.lineTo xe ye) (.stroke))))
-    )
   
 (defn canvas_track_mouse []
   [:div
@@ -83,7 +81,7 @@
                        (.beginPath) (.moveTo centerx centery) (.lineTo mox moy) (.stroke)))
 
                    (clearCanvas @maze_canvas)
-                   (drawWalls maze_canvas walls)
+                   (drawLines @maze_canvas walls)
                    (drawCam @maze_canvas @cam))}
    (let [{w :width h :height} fovDim]
      [:canvas {:ref (fn [c]
