@@ -4,6 +4,10 @@
    ))
 
 (def R 100) ; Ray distance
+(def hex ["0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "A" "B" "C" "D" "E" "F"])
+(defn rand-color []
+  (str "#" (clojure.string/join "" (repeatedly 6 #(rand-nth hex)))))
+
 (def deg2rad (/ Math/PI 180))
 (defonce fovDim {:width 1200 :height 600})
 (def fov_canvas (atom {}))
